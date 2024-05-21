@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>高麗菜物價價格查詢</title>
+  <link rel="stylesheet" href="stylesheets/style.css">
+</head>
+<body>
+<h1>高麗菜物價價格查詢</h1>
+<form id="searchForm">
+  <p>備註：時間區間為4月12日至5月12日</p>
+  <label for="month">月份:</label>
+  <input type="number" id="month" name="month" min="4" max="5" value="5">
+  <button type="submit">查詢</button>
+</form>
+<table id="results">
+  <thead>
+  <tr>
+    <th>日期</th>
+    <th>最高價</th>
+    <th>最低價</th>
+  </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<script>
+  // 定义一个函数来获取数据并更新表格
+  function fetchData(month = '') {
+    fetch(`/api/prices?month=${month}`)
+            .then(response => response.json())
+            .then(data => {
+              const resultsBody = document.getElementById('results').getElementsByTagName('tbody')[0];
+              resultsBody.innerHTML = ''; // 清空当前结果
+
+              // 显示新结果
+              data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row.price_date}</td><td>${row.max}</td><td>${row.min}</td>`; // 直接使用price_date字段值
+                resultsBody.appendChild(tr);
+              });
+            })
+            .catch(error => console.error('Error:', error));
+  }
+
+  // 在页面加载时获取并显示所有数据
+  document.addEventListener('DOMContentLoaded', function() {
+    fetchData();
+  });
+
+  // 在表单提交时获取并显示过滤后的数据
+  document.getElementById('searchForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // 获取表单数据
+    const month = document.getElementById('month').value;
+
+    // 使用表单数据获取并显示过滤后的数据
+    fetchData(month);
+  });
+</script>
+</body>
+</html>
